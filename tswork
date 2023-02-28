@@ -328,3 +328,5 @@ SQLPLUS> COLUMN DATUM_TIME FORMAT A24
 select * from v$PWFILE_USERS;
 
 select * from DICTIONARY order by table_name;
+
+select * from emp;
