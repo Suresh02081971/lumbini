@@ -1,0 +1,330 @@
+ssh-keygen -t rsa -b 2048
+test-netconnection 40.114.139.117 -port 3389
+
+TSCORESERVICES-VNET
+
+TSMANUFACTURING-VNET
+
+Remove-AzResourceGroup TSRESOURCEGROUP-RG -Force -Verbose
+
+New-AzVm `
+    -ResourceGroupName 'TSRESOURCEGROUP-RG' `
+    -Name 'testvm3' `
+    -Location 'West Europe' `
+    -VirtualNetworkName 'TSMANUFACTURING-VNET' `
+    -SubnetName 'TSMANUFACTURINGSYSTEM-SNET' `
+    -PublicIpAddressName 'testvm3PublicIpAddress' `
+    -OpenPorts 80,3389
+	
+ssh-keygen -b 2048 -t rsa -f cloudshellkey --- OCI CLI key generation mkdir .ssh / cd .ssh
+
+ssh user@IP -i aloudshell
+--------------------------------------------------------------------------------------------------------------
+
+/u01/app/oracle/diag/rdbms/orcl/orcl/alert/log.xml
+/u01/app/oracle/diag/rdbms/orcl/orcl/trace/alert_orcl.log
+
+show parameter db_recovery_file_dest
+
+archive log list; 
+
+select file_type, percent_space_used as used,percent_space_reclaimable as reclaimable,    number_of_files as "number" from v$flash_recovery_area_usage; 
+
+alter system set db_recovery_file_dest_size = 8G scope=both
+
+--------------------------------------------------------------------------------------------------------------
+
+select * from dba_directories where directory_name='DATA_PUMP_DIR'; 
+
+CREATE OR REPLACE DIRECTORY test_dir AS '/u01/app/oracle/oradata/';
+
+GRANT READ, WRITE ON DIRECTORY test_dir TO scott;
+
+expdp hr/hr1234@trng11gc schemas=hr directory=data_pump_dir dumpfile=hr.dmp logfile=hrexp.log;
+
+impdp hr/hr1234@trng11gc schemas=hr directory=data_pump_dir dumpfile=hr.dmp logfile=hrimp.log;
+
+expdp system/password@db10g full=Y directory=TEST_DIR dumpfile=DB10G.dmp logfile=expdpDB10G.log
+
+impdp system/password@db10g full=Y directory=TEST_DIR dumpfile=DB10G.dmp logfile=impdpDB10G.log
+
+--------------------------------------------------------------------------------------------------------------
+create table student ( name, address, phone, sclass )
+as
+select 
+  dbms_random.string( 'x', 25 )
+, dbms_random.string( 'x', 40 )
+, dbms_random.string( 'x', 20 )
+, dbms_random.string( 'x', 5 )
+from dual
+connect by level <= 1000000 ;
+
+--------------------------------------------------------------------------------------------------------------
+
+show parameter name;
+
+show parameter archive;
+
+alter system set db_unique_name=orcl11g_dg scope=spfile;
+
+alter database recover managed standby cancel;
+
+alter database open read only;
+
+ALTER DATABASE RECOVER MANAGED STANDBY DATABASE DISCONNECT FROM SESSION;
+
+--------------------------------------------------------------------------------------------------------------
+OEM SERVER
+
+export AGENT_HOME=/u01/app/oracle/oemagent/core/12.1.0.5.0/
+emctl start agent
+export OMS_HOME=/u01/app/oracle/oem12c/core/12.1.0.5.0/
+emctl start oms
+
+START AND STOP OEM 12c
+Startup/Shutdown
+
+Use the following commands to turn on all components installed by this article.
+
+#!/bin/bash
+export ORACLE_HOME=/u01/app/oracle/product/11.2.0/db_1
+export OMS_HOME=/u01/app/oracle/Middleware/oms
+export AGENT_HOME=/u01/app/oracle/Middleware/agent/core/12.1.0.1.0
+
+# Start everything
+$ORACLE_HOME/bin/dbstart $ORACLE_HOME
+
+$OMS_HOME/bin/emctl start oms
+
+$AGENT_HOME/bin/emctl start agent
+
+Use the following commands to turn off all components installed by this article.
+
+#!/bin/bash
+export ORACLE_HOME=/u01/app/oracle/product/11.2.0/db_1
+export OMS_HOME=/u01/app/oracle/Middleware/oms
+export AGENT_HOME=/u01/app/oracle/Middleware/agent/core/12.1.0.1.0
+
+# Stop everything
+$OMS_HOME/bin/emctl stop oms -all
+
+$AGENT_HOME/bin/emctl stop agent
+
+$ORACLE_HOME/bin/dbshut $ORACLE_HOME
+
+--------------------------------------------------------------------------------------------------------------
+
+OdiPurgeLog [-PURGE_TYPE=<SESSION|LOAD_PLAN_RUN|ALL>]
+[-COUNT=<session_number>][-FROMDATE=<from_date>] [TODATE=<to_date>]
+[-CONTEXT_CODE=<context_code>] [-USER_NAME=<user_name>]
+SPS DR 011 91 98491 26905
+[-AGENT_NAME=<agent_name>] [-PURGE_REPORTS=<Yes|No>] [-STATUS=<D|E|M>]
+[-NAME=<session_or_load_plan_name>] [-ARCHIVE=<Yes|No>] [-TODIR=<directory>]
+[-ZIPFILE_NAME=<zipfile_name>] [-XML_CHARSET=<charset>] [-JAVA_CHARSET=<charset>]
+
+---nmEnroll('/u01/app/odi_home/user_projects/domains/odidev_domain','/u01/app/odi_home/user_projects/domains/odidev_domain/nodemanager')
+
+connect('weblogic','weblogic1234','t3://10.106.56.54:7001')DR
+
+nmConnect('nodemanager','node1234','10.106.56.54','5556','odidev_domain','/u01/app/odi_home/user_projects/domains/odidev_domain','ssl')
+
+nmStart('AdminServer')
+nmStart('ODI_server1')
+
+nmKill('AdminServer')
+nmkill('ODI_server1')
+
+select count(*) FROM PROD_ODI_REPO.SNP_STEP_REPORT WHERE TRUNC(STEP_BEG) < TRUNC(SYSDATE) - 7;
+
+select count(*) FROM PROD_ODI_REPO.SNP_SCEN_REPORT WHERE TRUNC(SESS_BEG) < TRUNC(SYSDATE) - 7;
+
+select count(*) FROM PROD_ODI_REPO.SNP_SESS_TASK_LOG WHERE TRUNC(TASK_BEG) < TRUNC(SYSDATE) - 7;
+
+select count(*) FROM PROD_ODI_REPO.SNP_SESSION  WHERE TRUNC(SESS_BEG) < TRUNC(SYSDATE) - 7;
+
+select count(*) FROM PROD_ODI_REPO.SNP_STEP_LOG WHERE TRUNC(STEP_BEG) < TRUNC(SYSDATE) - 7;
+
+select segment_name,segment_type,bytes/1024/1024 MB from dba_segments where segment_type='TABLE' and segment_name='SNP_STEP_REPORT';
+
+select segment_name,segment_type,bytes/1024/1024 MB from dba_segments where segment_type='TABLE' and segment_name='SNP_SCEN_REPORT';
+
+select segment_name,segment_type,bytes/1024/1024 MB from dba_segments where segment_type='TABLE' and segment_name='SNP_SESS_TASK_LOG';
+
+select segment_name,segment_type,bytes/1024/1024 MB from dba_segments where segment_type='TABLE' and segment_name='SNP_SESSION';
+
+select segment_name,segment_type,bytes/1024/1024 MB from dba_segments where segment_type='TABLE' and segment_name='SNP_STEP_LOG';
+
+select sum(bytes)/1024/1024/1024 size_in_gb from dba_data_files;
+
+select sum(bytes)/1024/1024/1024 size_in_gb from dba_segments;
+
+select owner, sum(bytes)/1024/1024 Size_MB from dba_segments group  by owner;
+
+select SEGMENT_NAME, SEGMENT_TYPE, sum(bytes)/1024/1024/1024 size_in_gb from dba_segments where owner='SYS' 
+group by SEGMENT_NAME, SEGMENT_TYPE
+order by 3 desc;
+
+select SEGMENT_NAME, SEGMENT_TYPE, sum(bytes)/1024/1024/1024 size_in_gb from dba_segments where owner='PROD_ODI_REPO' 
+group by SEGMENT_NAME, SEGMENT_TYPE
+order by 3 desc;
+
+ind1ant3l3v1s10n		ch1n3s3c00k1ng22
+
+cd /u01/app/ODI/odi_mw/oracledi/agent/bin
+nohup agent_odiagent1.sh start &
+
+http://pl2sia-crs01:7001/console
+
+cd  /u01/app/odi_home/user_projects/domains/odiprod_domain/bin/stopNodeManager.sh
+    /u01/app/odi_home/user_projects/domains/odiprod_domain/bin/stopWebLogic.sh
+
+./stopNodeManager.sh
+
+./stopWebLogic.sh
+
+mv wb.log wb.log_date
+
+mv nm.log nm.log_date
+
+nohup ./startWebLogic.sh >wb.log &
+
+nohup ./startNodeManager.sh >nm.log &
+
+
+exec dbms_stats.gather_table_stats('PROD_ODI_REPO','SNP_SCEN_REPORT');
+
+select count(*) FROM PROD_ODI_REPO.SNP_STEP_REPORT WHERE TRUNC(STEP_BEG) < TRUNC(SYSDATE) - 60 AND SCEN_No=1046;
+
+delete /*+ nologging */ FROM PROD_ODI_REPO.SNP_STEP_REPORT WHERE TRUNC(STEP_BEG) < TRUNC(SYSDATE) - 60 AND SCEN_No=1046;
+
+select count(*) FROM PROD_ODI_REPO.SNP_SCEN_REPORT WHERE TRUNC(SESS_BEG) < TRUNC(SYSDATE) - 60 AND SCEN_No=1046;
+
+delete /*+ nologging */ FROM PROD_ODI_REPO.SNP_SCEN_REPORT WHERE TRUNC(SESS_BEG) < TRUNC(SYSDATE) - 60 AND SCEN_No=1046;
+
+select count(*) FROM PROD_ODI_REPO.SNP_SESS_TASK_LOG WHERE TRUNC(TASK_BEG) < TRUNC(SYSDATE) - 7;
+
+delete /*+ nologging */ FROM PROD_ODI_REPO.SNP_SESS_TASK_LOG WHERE TRUNC(TASK_BEG) < TRUNC(SYSDATE) - 21;
+
+select count(*) FROM PROD_ODI_REPO.SNP_SESSION  WHERE TRUNC(SESS_BEG) < TRUNC(SYSDATE) - 21;
+
+delete /*+ nologging */ PROD_ODI_REPO.SNP_SESSION  WHERE TRUNC(SESS_BEG) < TRUNC(SYSDATE) - 45;
+
+select count(*) FROM PROD_ODI_REPO.SNP_STEP_LOG WHERE TRUNC(STEP_BEG) < TRUNC(SYSDATE) - 30;
+
+delete /*+ nologging */ FROM PROD_ODI_REPO.SNP_STEP_LOG WHERE TRUNC(STEP_BEG) < TRUNC(SYSDATE) - 30;
+
+1)snp_sess_txt_log -( It holds the scripts used for the task and session details)
+2)snp_sess_task_log-(It holds the time details error msg and all)
+3) snp_sess_task -( it holds the name of the task and technology , context details)
+
+
+SNP_SESS_TXT_LOG   - 0 
+
+SNP_SESS_TASK_LOG   - 3470329
+
+SNP_STEP_LOG		- 2138776
+
+SNP_TASK_TXT        - 0
+
+SNP_SESS_TASK		- 0
+
+SNP_SESS_STEP       - 0
+
+SNP_SEQ_SESS        - 0
+
+SNP_VAR_SESS        - 0
+
+SNP_SESSION         - 238402
+
+SNP_EXP_TXT         - 
+
+snp_scen			all currently available scenarios and their version
+snp_scen_step		all steps of a scenario
+snp_scen_task		all tasks of the scenarios, incl. code
+snp_sb				all scenarios (even historic), with versions and snapshots
+snp_sb_step			all scenarios steps
+snp_sb_task			all scenarios tasks
+snp_scen_report		all scenario executions
+SNP_SESSION			all scenario or mapping executions, incl. duration, state, data volume, parent reference, errors,
+					warnings and variables
+SNP_SESS_TASK_LOG	runtime information on tasks
+snp_param_sess		internal parameters for running sessions
+SNP_LPI_RUN			Load Plan instance runs. Every time an attempt is made to re-start a load plan, data is captured
+					here.
+--------------------------------------------------------------------------------------------------------------
+tar zxvf jdk-7u65-linux-x64.tar.gz
+
+alternatives --install <link> <name> <path> <priority>
+
+alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.8.0_151/bin/java 1
+
+update-alternatives --config java
+
+alternatives --remove java /usr/bin/java java /usr/lib/jvm/jdk1.8.0/bin/java 
+
+--------------------------------------------------------------------------------------------------------------
+I:\INF\DataArch\Projects\Database Architecture\Engineered > Systems Inventory 
+
+--------------------------------------------------------------------------------------------------------------
+
+sudo systemctl status firewalld
+
+sudo systemctl stop firewalld
+
+sudo systemctl disable firewalld
+
+sudo systemctl enable firewalld
+
+sudo systemctl start firewalld
+
+dnf config-manager --enable ol8_codeready_builder
+
+dnf install xorg-x11-apps
+
+export CV_ASSUME_DISTID=OL7
+
+MASTER KEY -----------------------------------------------------------------------------------------------------------------------
+alter system set WALLET_ROOT="/u01/app/oracle/admin/orcldb/wallet" scope=spfile;
+
+ALTER SYSTEM SET TDE_CONFIGURATION="KEYSTORE_CONFIGURATION=FILE" scope=spfile;
+
+ADMINISTER KEY MANAGEMENT create keystore '/u01/app/oracle/admin/orcldb/wallet/tde' identified by tde1234;
+
+select status from v$encryption_wallet;
+
+ADMINISTER KEY MANAGEMENT create auto_login keystore from keystore '/u01/app/oracle/admin/orcldb/wallet/tde' identified by tde1234;
+
+select status from v$encryption_wallet;
+
+ADMINISTER KEY MANAGEMENT set keystore open force keystore identified by tde1234;
+
+ADMINISTER KEY MANAGEMENT set key FORCE keystore identified by tde1234 with backup;
+
+--------------------------------------------------------------------------------------------------------------
+
+alter database backup controlfile to trace
+
+select dbms_xdb_config.gethttpsport() from dual;
+
+exec dbms_xdb_config.sethttpsport(5505);
+
+select current_scn from v$database;
+
+select to_char(dbms_flashback.get_system_change_number) from dual;
+
+select scn_to_timestamp(6103526) from dual;
+
+dsa. msc   --- Domain controler users & groups in windows 2016
+
+Get-Content C:\app\oracle\diag\rdbms\orclwin1\orclwin1\trace\alert_orclwin1 -Wait -Tail  30 --- WIndows Tail command
+
+sqlplus> set markup csv on
+SQLPLUS> set PAGESIZE 60;
+SQLPLUS> set LINESIZE 132;
+SQLPLUS> COLUMN NAME FORMAT A24
+SQLPLUS> COLUMN VALUE FORMAT A16 
+SQLPLUS> COLUMN DATUM_TIME FORMAT A24
+
+select * from v$PWFILE_USERS;
+
+select * from DICTIONARY order by table_name;
